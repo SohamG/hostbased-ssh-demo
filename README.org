@@ -58,6 +58,11 @@ next sysadmin in this situation.
 - Please don't use hostbased ssh in prod.... (unless its pre-existing
   and/or you know what you are doing.)
 
+* References
+
+- https://hea-www.harvard.edu/~fine/Tech/ssh-host-based.html
+- https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Host-based_Authentication
+
 * License
 
 [[file:LICENSE][License]]
