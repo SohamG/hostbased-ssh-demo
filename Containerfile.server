@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+FROM quay.io/fedora/fedora:41
+
+RUN dnf install -y openssh openssh-server neovim
+
+RUN dnf group install -y admin-tools headless-management system-tools
+
+RUN <<END cat >> /etc/ssh/sshd_config
+Port 22
+HostKey /etc/ssh/ssh_host_ed25519_key
+PubkeyAuthentication no
+HostbasedAuthentication yes
+IgnoreRhosts no # This is important!!
+PermitRootLogin yes
+END
+
+COPY <<END /etc/ssh/ssh_known_hosts
+client,10.0.0.6 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHPXTCBJuapUCIVKhWz4himxysPrDNmek2bsE3cB9n4U
+END
+
+RUN echo -e "client\n10.0.0.6" >> /etc/ssh/shosts.equiv
+RUN cp /etc/ssh/shosts.equiv /root/.shosts
+RUN cp /etc/ssh/ssh_known_hosts /root/.ssh/known_hosts
+
+RUN chmod 0644 /etc/ssh/ssh_known_hosts
+RUN chmod 0644 /root/.shosts
+RUN chmod 0644 /root/.ssh/known_hosts
+RUN chmod 0644 /etc/ssh/shosts.equiv
+
+
+EXPOSE 2222
+
+RUN ssh-keygen -A && cat /etc/ssh/ssh_host_ed25519_key.pub
+
+CMD /sbin/sshd -D

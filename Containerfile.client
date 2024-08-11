@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+FROM quay.io/fedora/fedora:41
+
+RUN dnf install -y openssh openssh-server neovim
+
+RUN dnf group install -y system-tools
+
+RUN <<END cat >> /etc/ssh/ssh_config
+HostbasedAuthentication yes
+EnableSSHKeysign yes
+END
+
+RUN rm -rf /etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host/ed25519_key.pub
+
+COPY <<END /etc/ssh/ssh_host_ed25519_key
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACBz10wgSbmqVAiFSoVs+IYpscrD6wzZnpNm7BN3AfZ+FAAAAJg7jOJgO4zi
+YAAAAAtzc2gtZWQyNTUxOQAAACBz10wgSbmqVAiFSoVs+IYpscrD6wzZnpNm7BN3AfZ+FA
+AAAEDfrC4W8KJWsGWF1Uu0BOCnpZgtAwJSQC7Zs5qGYuc1RHPXTCBJuapUCIVKhWz4himx
+ysPrDNmek2bsE3cB9n4UAAAADnNvaGFtZ0B0aG9ua2VyAQIDBAUGBw==
+-----END OPENSSH PRIVATE KEY-----
+END
+
+COPY <<END /etc/ssh/ssh_host_ed25519_key.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHPXTCBJuapUCIVKhWz4himxysPrDNmek2bsE3cB9n4U
+END
+
+RUN chmod 0644 /etc/ssh/ssh_host_ed25519_key && chmod 0755 /etc/ssh/ssh_host_ed25519_key.pub
+
+CMD /sbin/init
+

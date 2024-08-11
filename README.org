@@ -1,0 +1,65 @@
+#+TITLE: HostBased SSH Authentication Configuration
+
+This repo is a minimum viable hostbased authentication setup for OpenSSH.
+
+* What is hostbased authentication?
+
+[[https://www.rfc-editor.org/rfc/rfc4252.html#page-12][RFC 4252 § 9]] specifies SSH authentication between hosts by verifying
+or authorizing SSH host keys (/etc/ssh/ssh_host_*). This is primarily used
+internally within already well-guarded setup.
+
+Note that the RFC specifies this method as OPTIONAL and therefore servers and
+clients are not required to implement it. OpenSSH client and server do however
+implement this.
+
+* Why does this repo exist?
+
+I found little to no documentation on this subject, definitely nothing from the
+last 20 years. This is a (futile) attempt at being a starting point for the
+next sysadmin in this situation.
+
+* Requirements
+
+ - Modern version of podman
+    
+* Usage
+
+1. Run ~make run~ to get a shell in the client container
+2. The client can ssh into the server container with ~ssh 10.0.0.5~
+3. Adapt containerfiles as needed.
+
+* Notes
+
+- In case of the root user, the global ~/etc/ssh/shosts.equiv~ is IGNORED
+  in favour of ~/root/.ssh/.shosts~. If the latter does not exist then access is
+  denied.
+
+- ~.shosts~ and ~/etc/[ssh/]shosts.equiv~ are modern versions of ~.rhosts~
+  and ~/etc/[ssh/]rhosts.equiv~ but importantly do NOT allow ancient tools like
+  ~rsh~ and ~rlogin~
+
+- Yes, hostbased auth has been ignored since the days of ~rsh~.
+
+- If client-side ssh is not invoked with enough privileges, a setuid program
+  named ~ssh-keysign~ is used to access the host private key. If this program
+  doesn't exist or is not setuid, client ssh will fail with an unhelpful error.
+
+- ~shosts.equiv~ having the lineage of ~/etc/hosts.equiv~ sets out "equivalent"
+  ranked nodes which should consequently be allowed to ssh in.
+
+- Hosts files can be hostname and/or IP delimited by ~,~
+  Eg. ~client,10.0.0.6~
+
+  Or have a username ~bob@server.com~
+
+- If client user name is not the same as server user name, then the user on the
+  server needs a ~~/.ssh/.shosts~
+
+- Please don't use hostbased ssh in prod.... (unless its pre-existing
+  and/or you know what you are doing.)
+
+* License
+
+[[file:LICENSE][License]]
+
+
